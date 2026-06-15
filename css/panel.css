@@ -1,0 +1,320 @@
+/* ============================================================
+   panel.css — 右侧详情面板 + Toast 通知 + 引导弹窗样式
+   ============================================================ */
+
+/* ---- 面板容器 ---- */
+#info-panel {
+  height: 100%;
+  background: var(--bg-panel);
+  border-left: 1px solid rgba(208, 180, 140, 0.6);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* 面板打开时由 body.panel-open 撑开 grid 列，这里只控制透明度和交互 */
+body.panel-open #info-panel {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---- 面板顶部装饰条 ---- */
+.panel-decorator {
+  height: 4px;
+  background: linear-gradient(to right, #92400e, #d97706);
+  flex-shrink: 0;
+}
+
+/* ---- 面板标题栏 ---- */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(208, 180, 140, 0.3);
+  background: rgba(244, 235, 216, 0.4);
+}
+
+.panel-classification {
+  font-size: 10px;
+  background: #92400e;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+
+.panel-ref {
+  font-size: 12px;
+  font-weight: 600;
+  color: #92400e;
+  margin-left: 6px;
+}
+
+.panel-close-btn {
+  color: #92400e;
+  font-size: 24px;
+  font-weight: 700;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.panel-close-btn:hover {
+  color: var(--red-highlight);
+}
+
+/* ---- 面板内容区 ---- */
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--text-dark);
+}
+
+/* 标题 */
+.panel-body h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #78350f;
+  border-bottom: 2px solid rgba(180, 83, 9, 0.2);
+  padding-bottom: 6px;
+  font-family: 'Noto Serif SC', Georgia, '宋体', serif;
+}
+
+/* 时间/地点元信息 */
+.panel-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.panel-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.panel-meta .meta-label {
+  color: #92400e;
+  font-weight: 600;
+}
+
+/* SVG 插图容器 */
+.panel-illustration {
+  width: 100%;
+  background: #fcfcfc;
+  border: 1px solid rgba(208, 180, 140, 0.3);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  position: relative;
+  overflow: hidden;
+}
+
+.panel-illustration .watermark {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 摘要文字 */
+.panel-summary {
+  background: rgba(245, 235, 215, 0.3);
+  border-left: 4px solid #92400e;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.8;
+  text-align: justify;
+  color: var(--text-body);
+}
+
+/* 关联人物 / 单位 */
+.panel-people, .panel-units {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.person-chip {
+  padding: 6px 12px;
+  background: #fef3c7;
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  border-radius: 4px;
+  font-size: 12px;
+  color: #78350f;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.person-chip:hover {
+  background: #fde68a;
+  border-color: var(--accent-amber);
+}
+
+.person-chip:active {
+  transform: scale(0.95);
+}
+
+.unit-chip {
+  padding: 6px 12px;
+  background: #eae0cd;
+  border: 1px solid rgba(208, 180, 140, 0.6);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #92400e;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* ============================================================
+   Toast 通知
+   ============================================================ */
+#toast {
+  position: fixed;
+  bottom: 140px;
+  left: 24px;
+  background: rgba(26, 20, 16, 0.98);
+  border: 1px solid rgba(217, 119, 6, 0.5);
+  color: var(--text-primary);
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  max-width: 320px;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#toast.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#toast h4 {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f5a623;
+  margin-bottom: 4px;
+}
+
+#toast p {
+  font-size: 11px;
+  color: rgba(244, 236, 216, 0.8);
+}
+
+/* ============================================================
+   引导弹窗
+   ============================================================ */
+#guide-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.guide-card {
+  background: var(--bg-panel);
+  max-width: 480px;
+  width: 100%;
+  border-radius: 16px;
+  border: 2px solid #92400e;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.guide-header {
+  background: var(--bg-deep);
+  color: #f5a623;
+  padding: 16px;
+  text-align: center;
+  border-bottom: 1px solid rgba(180, 83, 9, 0.3);
+}
+
+.guide-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Noto Serif SC', Georgia, '宋体', serif;
+}
+
+.guide-body {
+  padding: 20px;
+  font-size: 14px;
+  color: var(--text-dark);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  line-height: 1.7;
+}
+
+.guide-body .highlight {
+  text-align: center;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.guide-tips {
+  background: rgba(251, 243, 219, 0.8);
+  border: 1px solid rgba(217, 119, 6, 0.2);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  background: #92400e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: background 0.2s;
+}
+
+.guide-btn:hover {
+  background: #a16207;
+}

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>航天档案时空可视化系统 - 东方红一号·历史足迹</title>
+
+  <!--
+    ============================================================
+    依赖说明：
+    - Tailwind CSS：唯一 CDN 依赖（工具类太多，不适合手写）
+    - Leaflet 地图库：本地 lib/ 目录，离线可用
+    - 字体：优先系统自带，兜底宋体/衬线体
+    ============================================================
+  -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Leaflet 地图 CSS（本地） -->
+  <link rel="stylesheet" href="lib/leaflet.css">
+
+  <!-- 自定义样式（按组件拆分） -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/toolbar.css">
+  <link rel="stylesheet" href="css/timeline.css">
+  <link rel="stylesheet" href="css/panel.css">
+</head>
+<body class="w-full h-screen overflow-hidden font-serif-sc select-none">
+
+  <!-- ============================================================
+       A. 顶部导航栏（grid-area: navbar）
+       ============================================================ -->
+  <header id="navbar">
+    <!-- 左侧 Logo -->
+    <div class="navbar-brand">
+      <div class="navbar-icon">东</div>
+      <div class="navbar-title">
+        <h1>北京航天事业·历史足迹</h1>
+        <p>Beijing Aerospace Historical Archives</p>
+      </div>
+    </div>
+
+    <!-- 中间菜单 -->
+    <nav class="nav-menu">
+      <button class="nav-item active">时空地理</button>
+      <button class="nav-item disabled" title="未来扩充功能" disabled>三维城市 🔒</button>
+      <button class="nav-item disabled" title="未来扩充功能" disabled>知识图谱 🔒</button>
+      <button class="nav-item disabled" title="未来扩充功能" disabled>档案故事 🔒</button>
+    </nav>
+
+    <!-- 右侧卫星广播音频 -->
+    <div class="audio-control">
+      <button id="audio-toggle-btn" class="audio-btn" title="播放东方红一号卫星广播无线电信号">
+        <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="pause-icon" class="hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+      </button>
+      <div class="audio-label">
+        <span>东方红广播信号模拟</span>
+        <span id="audio-status" class="audio-status">已停止播音</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       B. 左侧控制面板（grid-area: toolbar）
+       ============================================================ -->
+  <aside id="toolbar">
+    <!-- 图层控制 -->
+    <div class="toolbar-card">
+      <div class="toolbar-card-title">系统图层与控制</div>
+
+      <!-- 测控链路开关 -->
+      <label class="toggle-row">
+        <span class="toggle-label">显示测控链路</span>
+        <div class="toggle-switch">
+          <input type="checkbox" id="link-toggle" checked>
+          <div class="toggle-bg" id="toggle-bg"></div>
+          <div class="toggle-dot on" id="toggle-dot"></div>
+        </div>
+      </label>
+
+      <!-- 地理聚合开关 -->
+      <label class="toggle-row">
+        <span class="toggle-label">地理智能聚合</span>
+        <div class="toggle-switch">
+          <input type="checkbox" id="cluster-toggle" checked>
+          <div class="toggle-bg" id="cluster-bg"></div>
+          <div class="toggle-dot on" id="cluster-dot"></div>
+        </div>
+      </label>
+
+      <!-- 底图滤镜切换 -->
+      <div class="filter-section">
+        <span class="filter-section-label">底图历史氛围滤镜</span>
+        <div class="filter-btns">
+          <button id="filter-on" class="filter-btn active">复古黄宣纸</button>
+          <button id="filter-off" class="filter-btn">科技感原貌</button>
+        </div>
+      </div>
+
+      <!-- 复位按钮 -->
+      <button id="reset-view" class="reset-btn">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 13v1c0 1.1.9 2 2 2v1.93zm6.9-2.53c-.26-.81-1-1.4-1.9-1.4h-1v-3c0-.55-.45-1-1-1h-6v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.4z"/></svg>
+        聚焦全部足迹
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       C. 地图容器（grid-area: map）
+       ============================================================ -->
+  <main id="map" class="vintage-map-filter"></main>
+
+  <!-- ============================================================
+       D. 右侧详情面板（grid-area: panel）
+       ============================================================ -->
+  <aside id="info-panel">
+    <div class="panel-decorator"></div>
+
+    <!-- 面板标题栏 -->
+    <div class="panel-header">
+      <div class="flex items-center gap-1.5">
+        <span class="panel-classification">航天历史档案</span>
+        <span id="info-ref" class="panel-ref">北京航天编年史</span>
+      </div>
+      <button id="close-panel" class="panel-close-btn">&times;</button>
+    </div>
+
+    <!-- 面板内容 -->
+    <div class="panel-body custom-scroll">
+      <!-- 标题与时空坐标 -->
+      <div>
+        <h2 id="info-title">「581」组正式成立</h2>
+        <div class="panel-meta">
+          <div>
+            <span class="meta-label">🕒 发生时间:</span>
+            <span id="info-date" class="font-bold">1958年8月</span>
+          </div>
+          <div>
+            <span class="meta-label">📍 发生地点:</span>
+            <span id="info-location" class="font-bold">北京·中科院</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SVG 虚拟档案插图 -->
+      <div class="panel-illustration">
+        <div class="watermark">
+          <svg width="128" height="128" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" stroke="currentColor" fill="none" stroke-width="2"/>
+            <polygon points="50,15 55,40 80,45 55,50 50,75 45,50 20,45 45,40" fill="currentColor"/>
+          </svg>
+        </div>
+        <div id="info-svg-container" class="w-full h-full flex items-center justify-center"></div>
+      </div>
+
+      <!-- 摘要 -->
+      <div class="panel-summary">
+        <p id="info-summary">
+          中国科学院成立人造卫星高空探测组（代号581组），由赵九章任组长，钱学森任副组长，开启了中国航天卫星史的序幕。
+        </p>
+      </div>
+
+      <!-- 关联人物 -->
+      <div>
+        <span class="section-label">📌 关键人物（点击名片探索其时空足迹）</span>
+        <div id="info-people" class="panel-people"></div>
+      </div>
+
+      <!-- 关联单位 -->
+      <div>
+        <span class="section-label">🏢 相关科研单位</span>
+        <div id="info-units" class="panel-units"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       E. 底部时间轴（grid-area: timeline）
+       ============================================================ -->
+  <footer id="timeline-bar">
+    <!-- 时空轴标签 -->
+    <div class="timeline-badge">
+      <span class="badge">时空轴</span>
+      <span class="badge-label">滑动时间轴解锁北京航天事业的历史足迹</span>
+    </div>
+
+    <!-- 滑块 -->
+    <div class="timeline-slider-wrapper">
+      <div class="timeline-ticks">
+        <span class="tick-highlight">1956（起步）</span>
+        <span>1958</span>
+        <span>1961</span>
+        <span>1965</span>
+        <span>1966</span>
+        <span>1968</span>
+        <span class="tick-highlight">1970（启运）</span>
+      </div>
+      <input type="range" id="time-slider" min="1956" max="1970" step="1" value="1956">
+    </div>
+
+    <!-- 年份显示 -->
+    <div class="timeline-year">
+      <span class="timeline-year-label">聚焦节点年份:</span>
+      <span id="slider-year" class="timeline-year-value">1956</span>
+      <span class="timeline-year-unit">年</span>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       F. 浮动组件：Toast 通知 + 引导弹窗
+       ============================================================ -->
+
+  <!-- 知识图谱联动 Toast -->
+  <div id="toast">
+    <div class="flex items-start gap-3">
+      <div class="w-5 h-5 bg-amber-600 rounded-full flex items-center justify-center text-[10px] text-white font-bold shrink-0">i</div>
+      <div>
+        <h4 id="toast-title">知识图谱联动高亮中</h4>
+        <p id="toast-body">点击人物标签已激活该人物在各年份参与研制的地理点位脉冲。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 首次加载引导弹窗 -->
+  <div id="guide-modal">
+    <div class="guide-card">
+      <div class="guide-header">
+        <h3>北京航天历史可视化演示说明</h3>
+      </div>
+      <div class="guide-body">
+        <p class="highlight">欢迎进入 1956 — 1970 北京航天事业历史足迹</p>
+        <div class="guide-tips">
+          <div>💡 <strong>时间轴驱动：</strong>拖动底部滑动条，地图展示对应年份及之前的北京航天历史事件。</div>
+          <div>🎯 <strong>档案详情：</strong>点击地图上的闪烁星标，滑出右侧历史档案查看详情。</div>
+          <div>🔗 <strong>知识网络：</strong>点击档案中的【核心人物】（如钱学森），高亮该人物参与的其他航天遗址。</div>
+          <div>📻 <strong>听见东方红：</strong>顶部内置东方红一号卫星广播信号模拟，点击播放无线电波形与乐曲。</div>
+        </div>
+        <button id="close-guide" class="guide-btn">开始探索历史足迹</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       脚本加载（按依赖顺序）
+       ============================================================ -->
+  <!-- Leaflet 地图引擎（本地） -->
+  <script src="lib/leaflet.js"></script>
+
+  <!-- 数据 & 资源 -->
+  <script src="js/data.js"></script>
+  <script src="js/svg-graphics.js"></script>
+
+  <!-- 核心模块 -->
+  <script src="js/map.js"></script>
+  <script src="js/timeline.js"></script>
+  <script src="js/panel.js"></script>
+  <script src="js/graph.js"></script>
+  <script src="js/toolbar.js"></script>
+  <script src="js/audio.js"></script>
+
+  <!-- 启动入口（最后加载） -->
+  <script src="js/app.js"></script>
+
+</body>
+</html>

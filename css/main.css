@@ -1,0 +1,185 @@
+/* ============================================================
+   main.css — CSS 变量、全局样式、CSS Grid 布局、动画
+   视觉风格：深色复古档案风（琥珀/宣纸色系）
+   ============================================================ */
+
+/* ---- CSS 自定义属性 ---- */
+:root {
+  /* 主色调 — 复古档案 */
+  --bg-deep:       #16120e;
+  --bg-panel:      #faf5ec;
+  --bg-panel-dark: #f4ebd8;
+  --text-primary:  #f4ecd8;
+  --text-dark:     #3e2723;
+  --text-body:     #4e3629;
+  --text-muted:    #5c3e2e;
+  --accent-amber:  #d97706;
+  --accent-amber-dark: #b45309;
+  --accent-amber-light: #fef3c7;
+  --accent-gold:   #f4ecd8;
+  --border-gold:   #d0b48c;
+  --red-highlight: #ef4444;
+
+  /* 布局尺寸 */
+  --navbar-h:      64px;
+  --toolbar-w:     176px;
+  --timeline-h:    120px;
+  --panel-w:       380px;
+  --transition-speed: 0.5s;
+}
+
+/* ---- 全局重置 ---- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Noto Serif SC', Georgia, '宋体', serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+}
+
+/* ---- 字体定义（优先本地，兜底系统字体） ---- */
+@font-face {
+  font-family: 'Noto Serif SC';
+  src: local('Noto Serif SC'), local('Source Han Serif SC');
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Ma Shan Zheng';
+  src: local('Ma Shan Zheng'), local('STKaiti'), local('KaiTi');
+  font-display: swap;
+}
+
+.font-serif-sc {
+  font-family: 'Noto Serif SC', Georgia, '宋体', serif;
+}
+
+.font-historic {
+  font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', cursive, serif;
+}
+
+/* ============================================================
+   CSS Grid 四区域布局（替代原来的 absolute 定位）
+   ============================================================ */
+body {
+  display: grid;
+  grid-template-rows: var(--navbar-h) 1fr var(--timeline-h);
+  grid-template-columns: var(--toolbar-w) 1fr 0;
+  grid-template-areas:
+    "navbar   navbar  navbar"
+    "toolbar  map     panel"
+    "timeline timeline timeline";
+  height: 100vh;
+  transition: grid-template-columns var(--transition-speed) ease;
+}
+
+/* 面板打开时：展开第三列 */
+body.panel-open {
+  grid-template-columns: var(--toolbar-w) 1fr var(--panel-w);
+}
+
+#navbar       { grid-area: navbar;   z-index: 100; }
+#toolbar      { grid-area: toolbar;  z-index: 50; }
+#map          { grid-area: map;      z-index: 1;  background: #e6dfd3; transition: filter 0.7s ease; }
+#info-panel   { grid-area: panel;    z-index: 80; }
+#timeline-bar { grid-area: timeline; z-index: 100; }
+
+/* ---- 选中文字颜色 ---- */
+::selection {
+  background: var(--accent-amber);
+  color: #fff;
+}
+
+/* ============================================================
+   视觉特效：旧地图滤镜、动画、纹理
+   ============================================================ */
+
+/* 复古黄宣纸滤镜（应用在地图容器上） */
+.vintage-map-filter {
+  filter: sepia(0.85) contrast(1.1) brightness(0.92) saturate(0.85) hue-rotate(335deg);
+}
+
+/* 测控链路虚线流动动画 */
+.dash-flow {
+  stroke-dasharray: 8, 8;
+  animation: dash 30s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+
+/* 标记点呼吸光环动画 */
+@keyframes pulse-ring {
+  0%   { transform: scale(0.6); opacity: 0; }
+  50%  { opacity: 0.5; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.custom-ring {
+  animation: pulse-ring 2.5s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
+}
+
+/* 人物联动高亮（红色爆闪） */
+.highlight-ring {
+  animation: pulse-ring 1.2s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
+  border-color: var(--red-highlight) !important;
+}
+
+/* 羊皮纸纹理背景 */
+.parchment {
+  background-color: #fcf8f2;
+  background-image:
+    radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 0),
+    radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 0);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
+}
+
+/* ---- 自定义滚动条 ---- */
+.custom-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: var(--accent-amber);
+  border-radius: 3px;
+}
+
+/* ---- 时间轴滑块自定义样式 ---- */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent-amber);
+  border: 3px solid var(--accent-amber-light);
+  box-shadow: 0 0 10px rgba(217, 119, 6, 0.6);
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: var(--accent-amber-dark);
+}
+
+/* 禁止文本选中 */
+.select-none {
+  user-select: none;
+}

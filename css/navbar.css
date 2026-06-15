@@ -1,0 +1,132 @@
+/* ============================================================
+   navbar.css — 顶部导航栏样式
+   ============================================================ */
+
+#navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 24px;
+  background: var(--bg-deep);
+  border-bottom: 1px solid rgba(208, 180, 140, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* ---- 左侧 Logo 区域 ---- */
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(217, 119, 6, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d97706;
+  font-weight: bold;
+  font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', cursive;
+  font-size: 18px;
+}
+
+.navbar-title h1 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: #d97706;
+  font-family: 'Noto Serif SC', Georgia, '宋体', serif;
+}
+
+.navbar-title p {
+  font-size: 10px;
+  color: rgba(217, 119, 6, 0.6);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+/* ---- 中间菜单按钮 ---- */
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-item {
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.nav-item.active {
+  background: rgba(217, 119, 6, 0.2);
+  color: #f5a623;
+  border: 1px solid rgba(217, 119, 6, 0.3);
+}
+
+.nav-item.disabled {
+  color: rgba(244, 236, 216, 0.4);
+  cursor: not-allowed;
+}
+
+/* ---- 右侧音频播放器 ---- */
+.audio-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(180, 83, 9, 0.2);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+.audio-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent-amber);
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.audio-btn:hover {
+  background: var(--accent-amber-dark);
+}
+
+.audio-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.audio-label {
+  display: flex;
+  flex-direction: column;
+}
+
+.audio-label span:first-child {
+  font-size: 11px;
+  color: #f5a623;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.audio-status {
+  font-size: 9px;
+  color: rgba(217, 119, 6, 0.7);
+}
+
+.audio-status.playing {
+  color: #4ade80;
+}
